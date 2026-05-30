@@ -14,21 +14,31 @@ tooling, not its Proxmox domain content.
 
 ## Conventions
 
-- **dryvist-only references.** Every owner reference in this repo — provider
-  `owner`, `uses:`, renovate presets, remotes, links — is `dryvist`. Do not
-  introduce any personal-account owner references; this repo manages the
-  `dryvist` org and must point only at it.
-- **No magic numbers in `.tf`.** Every numeric or string value goes in
-  `variables.tf` (with type + validation + description) or in
-  `config/<scope>.yml` (parsed via `yamldecode(file(...))` into a local). The
-  canonical example is `var.dot_github_repository_id`: a GitHub repo ID with a
-  default and validation, referenced from `rulesets.tf` as
-  `var.dot_github_repository_id`. Never inline a repo ID, threshold, port,
-  extension list, or branch name.
-- **`config/` and `templates/` hold non-`.tf` source data.** `config/*.yml`
-  carries ruleset defaults (`yamldecode`); `templates/*.tmpl` carries per-repo
-  file bodies (`templatefile()`) for resources like
-  `github_repository_file.license` that materialize files into every repo.
+- **No personal-account references.** Any owner reference that must exist —
+  `providers.tf` `owner`, `uses:`, renovate presets, remotes, links — points
+  at the org this repo manages, never at a personal account. (See also the
+  org-agnostic-code rule below: the org login appears in `providers.tf` and
+  documentation strings only, never in `.tf` resource bodies or variable
+  descriptions.)
+- **No magic numbers in `.tf`. No specific identities in `.tf` either.**
+  Numeric or string values land in `variables.tf` (with type + validation +
+  description) or `config/<scope>.yml` (parsed via `yamldecode(file(...))`
+  into a local). For identifiers that GitHub already knows about — repo IDs,
+  the org's own login, account IDs — use a `data` source in `data.tf` and
+  reference the live value at apply time, never a literal default. The
+  canonical example is `data.github_repository.dot_github`: looks up the
+  org's `.github` repo by name (org is implied by the provider's `owner`),
+  exposes its numeric `repo_id` to org rulesets.
+- **Code stays org-agnostic.** Don't bake the org's name into variable
+  descriptions, comments, or documentation strings. Write by role: "the
+  org's `.github` repo", "the org owner declared in the provider". The
+  `providers.tf` `owner = "dryvist"` is the single allowed mention of the
+  org login; everything else references roles.
+- **`config/` holds non-`.tf` source data.** YAML thresholds, lists, and
+  any structured input the rulesets read at apply time. Canonical text the
+  org doesn't author (MIT LICENSE body, CODE_OF_CONDUCT, etc.) is fetched
+  from a trustworthy upstream via `data "http"` — never committed as a
+  local template.
 - **No local markdownlint config.** This repo *defines* the org-wide
   markdownlint ruleset (`github_organization_ruleset.markdown_lint`), whose
   single source of truth is the workflow + `.markdownlint-cli2.yaml` in
