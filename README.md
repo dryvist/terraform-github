@@ -16,10 +16,12 @@ defined **once** here and applied to **every** repo automatically.
 
 | Resource | Effect |
 | --- | --- |
-| `github_organization_ruleset.markdown_lint` | Requires the markdownlint workflow in `dryvist/.github` to pass on the default branch of **every** repo in the org. Single source of truth: the workflow + `.markdownlint-cli2.yaml` both live in `dryvist/.github`. |
+| `github_organization_ruleset.org_push_protection` | Native GitHub push rules enforced at the git layer (no workflow runs). Hard ceiling on individual file size and a banned-extension list, applied to every repo, every ref. Thresholds and list live in `config/rulesets-defaults.yml`. |
+| `github_organization_ruleset.markdown_lint` | Requires the markdownlint workflow in the org's `.github` repo to pass on the default branch of **every** repo. Single source of truth: the workflow + `.markdownlint-cli2.yaml` both live in `.github`. |
 
-Start small — this is the seed. Branch protection, the verified-signature
-policy, file-size limits, and repo settings can move here next.
+Start small — this is the seed. Branch protection, commit-message format,
+the verified-signature policy, repo settings, labels, and per-repo file
+content (LICENSE, CODEOWNERS) move here next.
 
 ## Layout
 
@@ -28,7 +30,8 @@ versions.tf       # terraform + provider pins, S3 backend (partial)
 providers.tf      # github provider, GITHUB_TOKEN auth
 variables.tf      # all input variables (no magic numbers in .tf below)
 data.tf           # live lookups: repo IDs, org metadata — never literals
-rulesets.tf       # org rulesets (markdown_lint, …)
+locals.tf         # config/*.yml decoded into named locals for rulesets.tf
+rulesets.tf       # org rulesets (markdown_lint, org_push_protection, …)
 main.tf           # multi-file entrypoint stub (resources organized by topic)
 outputs.tf       # intentionally empty — see file header
 config/           # YAML thresholds + lists consumed via yamldecode(file(...))

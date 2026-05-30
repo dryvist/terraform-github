@@ -14,14 +14,15 @@ push_protection:
   # rather than raising the org-wide ceiling.
   max_file_size_mb: 1
 
-  # Banned file extensions. These extensions usually carry credentials or
-  # keys; pushes containing files with these extensions are rejected at the
-  # git layer. Repos that legitimately need to commit one of these (e.g. a
-  # test fixture) put them in a bypass-allowed path or add the actor to
-  # bypass.
+  # Banned file extensions, as fnmatch globs (the integrations/github provider
+  # format for restricted_file_extensions). These extensions usually carry
+  # credentials or keys; pushes containing files matching any of these globs
+  # are rejected at the git layer. Repos that legitimately need to commit one
+  # (e.g. a test fixture) put them in a bypass-allowed path or add the actor
+  # to bypass.
   banned_file_extensions:
-    - env
-    - pem
-    - key
-    - p12
-    - pfx
+    - "*.env"
+    - "*.pem"
+    - "*.key"
+    - "*.p12"
+    - "*.pfx"
