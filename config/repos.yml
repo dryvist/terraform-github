@@ -1,0 +1,122 @@
+# Inventory of repos whose per-repo GitHub settings this config manages.
+#
+# Decoded with yamldecode(file(...)) in locals.tf and consumed by repos.tf
+# via for_each. The map key is the repo name; the org owner is implied by the
+# single provider's `owner` setting (see providers.tf) and is intentionally
+# NOT repeated here — an account login in config/*.yml would violate the
+# no-identity-in-source rule. Repo names are governance subjects (the things
+# being managed), not identities, so they belong here as structured data.
+#
+# Schema (per entry):
+#   visibility:  "public" | "private". Drives the secret-scanning cost gate:
+#                secret scanning + push protection require GitHub Advanced
+#                Security on PRIVATE repos (paid), but are free on public. The
+#                module enables them ONLY when visibility is "public", so an
+#                apply never silently turns on a paid feature. Look up the live
+#                value (`gh repo view <repo> --json visibility`) before adding
+#                a repo — never assume "public".
+#   description: GitHub repo description (1-line, shown on GitHub).
+#   topics:      List of GitHub topic tags.
+#
+# Per-repo `all`/`main` rulesets are OUT OF SCOPE: the org-level rulesets in
+# rulesets.tf already enforce signed commits, linear history, and Conventional
+# Commits on every repo. This config manages only repository *settings*
+# (merge methods, auto-merge, branch deletion, wiki, web-commit signoff,
+# Dependabot, and the public-only secret-scanning block).
+#
+# This is the first increment — the nix-* family ported from the retired
+# `.github-tofu` scaffold. Expanding to every non-archived org repo is a
+# follow-up (see the tracking issue).
+
+repos:
+  nix-ai:
+    visibility: public
+    description: "Your AI coding toolkit, declared in Nix — Claude, Gemini, Copilot, 15+ MCP servers, one flake"
+    topics:
+      - ai
+      - ai-tools
+      - claude
+      - claude-code
+      - copilot
+      - gemini
+      - home-manager
+      - mcp-server
+      - nix
+      - nix-flakes
+      - ollama
+
+  nix-darwin:
+    visibility: public
+    description: "Flakes-based nix-darwin config for macOS — system packages, networking, security, and home-manager orchestration via Nix"
+    topics:
+      - darwin
+      - declarative
+      - home-manager
+      - infrastructure-as-code
+      - macos
+      - macos-configuration
+      - nix
+      - nix-darwin
+      - nix-flakes
+      - reproducible
+
+  nix-home:
+    visibility: public
+    description: "Cross-platform dev environment in Nix — git, zsh, VS Code, tmux, declared once, reproduced everywhere"
+    topics:
+      - cross-platform
+      - developer-tools
+      - dotfiles
+      - git-config
+      - home-manager
+      - nix
+      - nix-flakes
+      - tmux
+      - vscode
+      - zsh
+
+  nix-devenv:
+    visibility: public
+    description: "Reusable dev shells in Nix — Terraform, Ansible, Kubernetes, AI/ML, and more, one nix develop away"
+    topics:
+      - declarative
+      - developer-tools
+      - development-environment
+      - devenv
+      - direnv
+      - flake-templates
+      - nix
+      - nix-develop
+      - nix-flakes
+      - reproducible
+
+  nix-claude-code:
+    visibility: public
+    description: "Declarative Claude Code in Nix — plugins, marketplaces, skills, hooks, MCP, and permissions as composable home-manager modules. Reproducible on macOS and Linux."
+    topics:
+      - agents
+      - ai
+      - ai-cli
+      - anthropic
+      - claude-code
+      - declarative
+      - flake-parts
+      - home-manager
+      - home-manager-module
+      - mcp
+      - nix
+      - nix-darwin
+      - nix-flake
+      - nix-flakes
+      - reproducible
+      - skills
+
+  nix-pxe-bootstrap:
+    visibility: public
+    description: "NixOS-on-Pi netboot.xyz + Proxmox auto-installer for unattended bare-metal install"
+    topics: []
+
+  nix-ai-server:
+    visibility: public
+    description: "NixOS bare-metal config for the dryvist AI host (server A, standalone)"
+    topics: []
