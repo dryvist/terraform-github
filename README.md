@@ -20,6 +20,7 @@ defined **once** here and applied to **every** repo automatically.
 | `github_organization_ruleset.org_branch_protection` | Quality gate on every default branch: required signatures, linear history, branch name pattern, strict Conventional Commits regex, PR thread resolution. **No bypass** — applies to everyone including org admins. |
 | `github_organization_ruleset.org_review_gate` | Review gate on every default branch: 1 approving review + CODEOWNER review on PRs. **OrganizationAdmin bypass in `pull_request` mode** so admins can merge their own PRs; bots and other contributors must obtain the review. |
 | `github_organization_ruleset.markdown_lint` | Requires the markdownlint workflow in the org's `.github` repo to pass on every ref of every repo. Single source of truth: the workflow + `.markdownlint-cli2.yaml` both live in `.github`. `do_not_enforce_on_create` so brand-new repos don't fail before their default branch exists. |
+| `scripts/enable-codeql-default-setup.sh` | Idempotently enables free CodeQL default-setup on every public org repo with a supported language. Run on first apply and again whenever a new public repo joins. **Not** a Terraform resource (provider gap); script-managed until `integrations/terraform-provider-github` ships a `github_repository_code_scanning_default_setup` or equivalent. |
 
 Imports needed on first apply (declared in `rulesets.tf` via `import`
 blocks, executed automatically by `tofu apply`):
@@ -31,7 +32,11 @@ After successful apply, the `import` blocks can be removed in a follow-up
 PR (they're idempotent but only useful once).
 
 Next up (separate PRs): org Actions permissions, org-level settings, org
-variables, per-repo labels and LICENSE files via `for_each`.
+variables, per-repo labels and LICENSE files via `for_each`. Code scanning
+default-setup is currently script-managed
+(`scripts/enable-codeql-default-setup.sh`) pending a
+`github_repository_*` resource in `integrations/terraform-provider-github`;
+swap to the resource when upstream ships one.
 
 ## Layout
 
